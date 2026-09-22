@@ -1,0 +1,16 @@
+# 数据采集与处理依赖
+requests>=2.31
+pandas>=2.0
+openpyxl>=3.1
+beautifulsoup4>=4.12
+lxml>=5.0
+python-dotenv>=1.0
+
+# 数据采集
+osmium>=4.3          # S1: OSM 路网解析
+cdsapi>=0.7          # S4: ERA5 气象数据
+
+# 数据处理
+xarray>=2024         # S4: NetCDF 处理
+netCDF4>=1.6         # S4: NetCDF 底层依赖
+numpy>=1.24

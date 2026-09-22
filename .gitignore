@@ -1,0 +1,57 @@
+# 敏感配置 
+.env
+
+# 数据文件
+data/raw/
+data/cleaned/
+data/integrated/
+*.docx
+
+# Python 
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 大文件
+*.osm.pbf
+*.osm.bz2
+*.nc
+*.hdf
+*.hdf5
+*.tif
+*.tiff
+*.shp
+*.shx
+*.dbf
+*.prj
+*.zip
+*.tar.gz
+*.rar
+
+# 日志
+*.log
+crawler/logs/
