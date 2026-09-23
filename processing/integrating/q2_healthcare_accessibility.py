@@ -68,12 +68,6 @@ def _load_hospitals():
 
 
 def _load_city_centers():
-    """cleaned geo_boundary.geojson → 全部城市级 feature 中心点
-
-    旧版本只对 S2 POI 出现的 60 城 (省会为主) 做可达性;
-    现在扩展到 boundary 中全部 363 个城市级 (地级市/直辖市市辖区)。
-    S2 只有 60 城 POI, OSM 医院为目的地, 与 S2 城市无关。
-    """
     import numpy as np
 
     gb = json.loads((INPUT_CLEANED / "geo_boundary.geojson").read_text(encoding="utf-8"))

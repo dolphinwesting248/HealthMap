@@ -1,4 +1,4 @@
-# 清洗数据说明 (cleaned data)
+# cleaned data说明
 
 > 项目：城市环境、医疗资源与居民健康 — 多源数据融合分析
 > 对应采集源 S1–S8 见 [data_sources.md](../data_sources.md)；清洗代码见 `processing/cleaning/clean_*.py`
