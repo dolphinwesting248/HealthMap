@@ -36,30 +36,6 @@
 | 跨源空间关联验证 | [docs/spatial_association_validation.md](docs/spatial_association_validation.md) |
 | 数据清单与 MD5 校验值 | [docs/data_manifest.md](docs/data_manifest.md) |
 
-## 快速开始
-
-```bash
-source .venv/bin/activate
-
-# 采集 (需重现数据时)
-for f in crawler/fetch_*.py; do python "$f"; done
-
-# 清洗
-for f in processing/cleaning/clean_*.py; do python "$f"; done
-
-# 融合
-for f in processing/integrating/q*_*.py; do python "$f"; done
-
-# 质量检查 / 空间关联验证 / 数据清单
-python processing/cleaning/quality_check.py
-python processing/integrating/spatial_join.py
-python scripts/make_manifest.py
-
-# 分析
-
-# 可视化
-```
-
 ---
 
 ## 数据分析与可视化协作说明
@@ -67,7 +43,7 @@ python scripts/make_manifest.py
 > 面向负责**分析与可视化**的成员：你不需要重新采集或清洗数据，
 > 直接下载已融合好的数据（`data/integrated/`）开始分析即可。
 
-## 1. 获取代码
+### 1. 获取代码
 
 ```bash
 git clone https://github.com/dolphinwesting248/HealthMap.git
@@ -80,7 +56,7 @@ cd HealthMap
 git pull
 ```
 
-## 2. 下载数据（从 Release）
+### 2. 下载数据
 
 数据**不在 git 仓库里**（体积原因，已加入 `.gitignore`），全部放在 GitHub Release：
 
@@ -92,7 +68,7 @@ git pull
 | `data_cleaned.zip` | 清洗后数据（15 个数据集）| 117 MB | ✅ 需要更细粒度或原始字段时用 |
 | `data_raw01.zip` + `data_raw02.zip` | 原始数据（8 个数据源）| 1.53 GiB ×2 | ❌ 一般不需要（除非要核对数据来源）|
 
-### 下载方式
+#### 下载方式
 
 **方式 A：浏览器** — 打开发布页，点击附件直接下载。
 
@@ -106,7 +82,7 @@ gh release download data-v1 -R dolphinwesting248/HealthMap -p "data_integrated.z
 gh release download data-v1 -R dolphinwesting248/HealthMap
 ```
 
-## 3. 放到正确位置
+### 3. 放到正确位置
 
 数据必须解压到项目根的 `data/` 下，目录名需与下表一致（脚本按固定路径读取）：
 
@@ -141,7 +117,7 @@ rm data_raw.zip                             # 合并用的临时文件，可删
 ls data/integrated/q1_environment_health/ data/integrated/q2_healthcare_access/ data/integrated/q3_equity/
 ```
 
-## 4. 从哪开始分析
+### 4. 从哪开始分析
 
 | 你想做的事 | 看这个 |
 |---|---|
@@ -160,7 +136,7 @@ data/integrated/q2_healthcare_access/q2_healthcare_accessibility_city.csv   # 36
 data/integrated/q3_equity/q3_equity_metrics.csv      # 年度公平性指标（10 年 × 25 列）
 ```
 
-## 5. 代码放哪里
+### 5. 代码放哪里
 
 ```
 analysis/        # 分析脚本放这里（目前为空，等你来写）
@@ -169,7 +145,7 @@ visualization/   # 出图脚本放这里（现有 data_lineage.py 是关联图�
 
 `analysis.md` 第五节列了 7 张建议的核心可视化及其数据来源，可直接照做。
 
-## 6. 环境准备
+### 6. 环境准备
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -178,7 +154,7 @@ pip install -r requirements.txt
 
 分析常用：`pandas numpy matplotlib` + `statsmodels scipy scikit-learn`（回归/聚类）+ `geopandas libpysal esda`（空间分析与地图）。
 
-## 7. 提交你的工作（git）
+### 7. 提交工作
 
 ```bash
 # 每次开工前先同步
@@ -206,13 +182,46 @@ git checkout -b analysis/q3-trend      # 建分支
 git push -u origin analysis/q3-trend   # 推分支, 然后在 GitHub 上开 Pull Request
 ```
 
-- ⚠️ 若 git 推送报 TLS/连接错误，重试一次通常即可（网络抖动）
-
-## 8. 遇到数据问题怎么办
+### 8. 遇到数据问题怎么办
 
 1. 先查 [`docs/data_quality_report.md`](docs/data_quality_report.md) —— 已记录的已知局限（如 US AQI 越界值）不必重复排查
 2. 再查 [`docs/integrated_data.md`](docs/integrated_data.md) 的「缺失值」小节 —— 空值可能是"源数据本就无此年"，不是错误
 3. 确认是数据生成的问题，请联系数据侧（改 `processing/` 下的脚本重跑），**不要手改 CSV**
+
+### 9. 文档随工作同步更新
+
+**代码提交时，文档要一起跟上**——文档过时比没有文档更误导人。每完成一块工作，先问自己"这改变了哪份文档的记录"。
+
+#### 需要随之更新的已有文档
+
+| 文档 | 什么时候要改 |
+|---|---|
+| `README.md` | 新增数据/脚本/输出目录、快速开始命令变化、协作流程调整、新成员上手方式变化 |
+| `AI_USAGE.md` | 每次用 AI 完成了一段实际工作 —— 补上"任务 / 采纳情况 / 人工核验方式 / 修改与反思"，包括 AI 出错被纠正的记录 |
+| `docs/integrated_data.md` | 分析中发现某列的含义、口径、缺失情况与文档不符，或新增了融合数据 |
+| `docs/cleaned_data.md` | 清洗规则、字段、缺失策略发生变化 |
+| `data_sources.md` | 新增/更换数据源，或采集方式、时间范围、许可变化 |
+| `docs/data_quality_report.md` | 新增质量规则，或发现新的数据问题（跑 `quality_check.py` 会自动更新）|
+| `docs/data_manifest.md` | 数据文件有增删改（跑 `make_manifest.py` 会自动更新）|
+
+#### 应当新增的说明文档
+
+自己负责的那块工作，需要留下**别人能看懂、能复核**的说明，建议统一放在 `docs/`：
+
+| 你的工作 | 建议文档 | 至少包含 |
+|---|---|---|
+| 分析 | `docs/analysis_<主题>.md` | 研究问题、用了哪些表与字段、方法与选择理由、样本量与筛选条件、结果、**结论的局限** |
+| 可视化 | `docs/visualization.md` | 每张图回答什么问题、数据来源与口径、图在哪（文件路径）、怎么重新生成 |
+| 新增数据源/采集 | `docs/<源名>.md` | 获取方式、字段、许可、关联字段、已知问题 |
+
+分析方法与结论尤其要写清**验证过程**：做了什么检验、排除了哪些替代解释、哪里还不确定。图表要有问题式标题（如"降雨增加后道路速度是否下降？"），并在图注中标注数据范围、单位与来源。
+
+#### 几条习惯建议
+
+- **改完就跑一遍生成脚本**：`quality_check.py` / `spatial_join.py` / `make_manifest.py`，让报告与数据保持同步
+- **文档与代码同一个 PR/commit**：不要留"下次再补文档"
+- **发现文档与数据不符时**：先确认哪个是对的，再改错的那个；不要只改文档掩盖数据问题
+- **不确定写在哪**：`docs/analysis.md` 是分析路线的总纲，具体工作细节放各自的专题文档，不要都堆进总纲
 
 ---
 
