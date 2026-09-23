@@ -1,9 +1,9 @@
-# 数据清单与校验值 (data manifest)
+# 数据清单与校验值
 
 > 由 `scripts/make_manifest.py` 生成；用于核对数据完整性与可复现性。
 > MD5 校验值可用于验证重新采集/清洗后的数据与本文档记录的一致性。
 
-## raw/ — 原始数据 (对应采集脚本 crawler/fetch_*.py 的输出)
+## raw/ — 原始数据
 
 - 文件数：**69**；合计：**3.1 GB**
 
@@ -79,7 +79,7 @@
 | `raw/pop_life_exp/nbs_life_expectancy.csv` | 50.6 KB | 930 | e08511b8ab716daef86541e4aff31784 |
 | `raw/pop_wb/worldbank_population_china.csv` | 36.0 KB | 774 | 19b26e66bef666ba3cf7f8eaa8293978 |
 
-## cleaned/ — 清洗后数据 (processing/cleaning/clean_*.py)
+## cleaned/ — 清洗后数据
 
 - 文件数：**17**；合计：**546.5 MB**
 
@@ -103,7 +103,7 @@
 | `cleaned/pop_census.csv` | 1.9 KB | 31 | 4a1f11e0f43c1e9dd5c767854ea30cb6 |
 | `cleaned/pop_wb.csv` | 36.0 KB | 774 | 19b26e66bef666ba3cf7f8eaa8293978 |
 
-## integrated/ — 跨源融合数据 (processing/integrating/q*_*.py)
+## integrated/ — 跨源融合数据
 
 - 文件数：**7**；合计：**353.2 KB**
 
@@ -120,4 +120,3 @@
 ## 汇总
 
 - data/ 三层共 **93** 个文件，合计 **3.7 GB**
-- 原始数据总量满足作业要求（≥2GB，单一数据源占比 <80%）

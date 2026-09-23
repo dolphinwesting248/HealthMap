@@ -310,3 +310,5 @@ SP.POP.TOTL,total_population,2024,1408975000.0
 | 实体关联 | 所有源 | 省份/城市名称（中英文映射，见 `processing/cleaning/utils.py`） |
 
 关联层级说明：省级融合（S5a+S6+S7+S8）覆盖 31 省完整；城市级融合（S2+S3a+S8）覆盖 31 个省会城市；S5b/S7b 为国家级对照。
+
+![数据关联图](./imgs/data_lineage.png)
