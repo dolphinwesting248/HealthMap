@@ -1,11 +1,3 @@
-# CODEOWNERS — 代码审核负责人
-#
-# 规则说明：
-#   - 越靠后的规则优先级越高（后面的规则会覆盖前面的）
-#   - 修改被 cover 的文件时，GitHub 会自动请求对应 owner 审核
-#   - 需在仓库 Settings → Branches 中启用 "Require review from Code Owners" 才会强制生效
-#   - 文档（README.md、docs/、AI_USAGE.md、data_sources.md）不在此列，可自由修改
-
 # ---------- 数据流程：采集 / 清洗 / 融合 ----------
 /crawler/                @dolphinwesting248 @westing2718
 /processing/             @dolphinwesting248 @westing2718
