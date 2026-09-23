@@ -5,7 +5,6 @@
 data/raw/
 data/cleaned/
 data/integrated/
-*.docx
 
 # Python 
 __pycache__/
@@ -20,7 +19,7 @@ build/
 .venv/
 venv/
 env/
-
+release/
 # Jupyter
 .ipynb_checkpoints/
 
@@ -55,3 +54,4 @@ desktop.ini
 # 日志
 *.log
 crawler/logs/
+中期大作业.docx

@@ -1,322 +1,312 @@
 # 数据源清单
 
 > 项目：城市环境、医疗资源与居民健康 — 多源数据融合分析
-> 采集时间：2026-09-20 至 2026-09-22
 
 ---
 
 ## 数据源总览
 
-| # | 数据源名称 | 获取方式 | 数据类型 | 原始规模 | 时间范围 | 许可 | 跨源关联字段 |
-|---|-----------|---------|---------|---------|---------|------|------------|
-| S1 | OpenStreetMap 中国路网 | 公开下载 (Geofabrik) | 地理空间矢量 | 1.5 GB | 路网快照 | ODbL | 经纬度, 行政区划 |
-| S2 | 百度地图医疗机构 POI | 公开 API (百度地图) | 结构化数据 | 1.5 MB | 快照 | 学术使用 | adcode, 经纬度, 城市名 |
-| S3 | 中国城市空气质量 | Kaggle 公开数据集 | 结构化数据 | 10 MB | 2023–2025 | CC BY 4.0 | 城市名, 经纬度, 年月 |
-| S4 | ERA5 再分析气象数据 | CDS API (Copernicus) | 科研栅格→CSV | 1.7 GB | 2023–2025 | Copernicus 免费 | 经纬度, 时间 |
-| S5 | 国家统计局省级卫生 | 国家数据平台 API | 结构化数据 | 2 MB | 2023–2025 | 政府公开 | 省份名, adcode, 年份 |
-| S6 | 国家统计局省级经济 | 国家数据平台 API | 结构化数据 | 15 MB | 2023–2025 | 政府公开 | 省份名, adcode, 年份 |
-| S7 | 人口普查 + World Bank | 政府公报 + API | 统计数据 | 20 KB | 2020 + 2023–2024 | 公开数据 | 省份名, adcode |
-| S8 | 行政区划边界 | DataV API | 地理空间 GeoJSON | 4.4 MB | 静态 | 公开数据 | adcode, 行政区划名 |
-
-**原始数据总量：3.21 GB**
+| # | 数据源名称 | 领域 | 获取方式 | 数据类型 | 大小 | 时间范围 | 许可/使用说明 | 跨源关联字段 |
+|---|-----------|------|---------|---------|-----------|---------|-------------|------------|
+| S1 | OpenStreetMap 中国路网 | 路网/POI | 公开下载 (Geofabrik) | 地理空间矢量 | 1.5GB | 持续更新 | ODbL | 经纬度, 行政区划 |
+| S2 | 百度地图医疗机构 POI | 医疗资源 | 公开 API | 结构化数据 | 1.7MB | 采集时快照 | 仅供学术研究 | 城市, 经纬度, 区县 |
+| S3 | Kaggle 环境数据（空气质量+水质量） | 环境 | 公开数据集下载 | 结构化数据 | 13MB | 2023-2026 | 公开数据集 | 城市/省份, 经纬度, 日期 |
+| S4 | ERA5 再分析气象数据 | 气象 | CDS API | 科研栅格 | 1.6GB | 2023-2025 | Copernicus 免费 | 经纬度, 时间 |
+| S5 | 健康与医疗服务数据（国家数据平台+WHO+COVID） | 健康 | API + 公开数据集 | 统计数据 | 74MB | 2016-2025 | 公开数据 / CC BY 4.0 | 省份/国家, adcode, 年份 |
+| S6 | 国家数据平台省级经济指标 | 社会经济 | stream/esData API | 统计数据 | 11.2MB | 2006-2025 | 公开数据 | 省份, adcode, 年份 |
+| S7 | 人口数据（七普+World Bank） | 人口 | 公报编译 + REST API | 政府公报/统计数据 | 39KB | 1960-2025 | 公开数据 / CC BY 4.0 | 省份/国家, adcode, 年份 |
+| S8 | DataV 行政区划边界 | 空间底座 | 公开 API 下载 | 地理空间矢量 | 4.6MB | — | 公开数据 | adcode, 行政区划名称 |
 
 ---
 
 ## 各数据源详情
 
-### S1. OpenStreetMap 中国路网数据
+### S1. OpenStreetMap 中国路网
 
-- **来源**: https://download.geofabrik.de/asia/china.html
-- **获取方式**: wget 下载 .osm.pbf 文件
-- **采集脚本**: `crawler/s1_fetch_osm.py`
-- **清洗脚本**: `processing/cleaning/clean_s1.py`（提取医疗设施 features）
-- **原始规模**: 1,522 MB (1 个文件)
-- **数据格式**: OSM PBF → GeoJSON（清洗后）
-- **时间范围**: 路网快照
-- **许可**: Open Database License (ODbL)
-- **关键字段**: 节点(nodes)、边(ways)、关系(relations)、标签(tags)
-- **跨源关联字段**: 经纬度 (lat/lon)、行政区划标签
+**元数据描述**
 
----
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://download.geofabrik.de/asia/china.html |
+| 采集脚本 | `crawler/fetch_geo_road.py` |
+| 保存位置 | `data/raw/geo_road/china-latest.pbf` |
+| 大小 | 1.5GB（.osm.pbf） |
+| 时间范围 | 持续更新（2026-09-20 下载快照） |
+| 许可 | Open Database License (ODbL) |
+| 关键字段 | 节点(nodes)、边(ways)、标签(tags)——清洗阶段用 osmium 提取医疗/教育/交通 POI |
+| 跨源关联字段 | 经纬度, 行政区划标签 |
+
+**样本展示**
+
+```
+PBF 二进制格式（无文本样例）。标准化结构示意：
+node(id=123456, lat=39.9042, lon=116.4074, tags=[amenity=hospital, name=北京医院])
+way(id=789, nodes=[...], tags=[highway=primary, name=长安街])
+```
 
 ### S2. 百度地图医疗机构 POI
 
-- **来源**: https://lbsyun.baidu.com/
-- **获取方式**: REST API 爬取
-- **采集脚本**: `crawler/s2_fetch_gaode_poi.py`
-- **清洗脚本**: `processing/cleaning/clean_s2.py`
-- **原始规模**: 7,129 条 POI → 去重后 6,809 条
-- **数据格式**: CSV
-- **时间范围**: 采集时快照
-- **许可**: 学术使用
-- **关键字段**: id, name, type, address, city, telephone, longitude, latitude, longitude_wgs84, latitude_wgs84, province
-- **跨源关联字段**: adcode, 经纬度(WGS-84), 城市名
-- **缺失值**: telephone 缺失 34.3%（正常）
+**元数据描述**
 
----
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://api.map.baidu.com/place/v2/search |
+| 采集脚本 | `crawler/fetch_health_resource.py` |
+| 保存位置 | `data/raw/health_resource/medical_poi.csv` |
+| 大小 | 1.4MB，8,005 条（31 个省会/直辖市） |
+| 查询分类 | 医院、诊所、卫生所、卫生院、社区卫生服务中心、妇幼保健、中医院、体检中心、药店（9 类） |
+| 许可 | 仅供学术研究（百度地图开放平台） |
+| 关键字段 | id, name, address, city, district, telephone, longitude, latitude, tag, search_query |
+| 坐标系 | BD-09（清洗阶段转换为 WGS-84） |
+| 跨源关联字段 | 城市名→省份, 经纬度, 区县 |
+| 局限 | 仅覆盖省会城市市区，非全国县级覆盖 |
 
-### S3. 中国城市空气质量数据
+**样本展示**
 
-- **来源**: Kaggle - houjihao/china-capitals-weather-and-air-quality-2023-2026
-- **获取方式**: Kaggle API 直接下载
-- **采集脚本**: `crawler/s3_fetch_openaq.py`
-- **清洗脚本**: `processing/cleaning/clean_s3.py`
-- **原始规模**: 40,424 行 → 过滤 2023-2025 后 33,976 行
-- **数据格式**: CSV
-- **时间范围**: 2023-01-01 ~ 2025-12-31
-- **许可**: CC BY 4.0
-- **关键字段**: date, city, province, latitude, longitude, pm25_ugm3, pm10_ugm3, no2_ugm3, o3_ugm3, aqi, temp_c, precip_mm, wind_kmh, year, month
-- **跨源关联字段**: 城市名, 经纬度, 年月
-- **缺失值**: 0（完整数据集）
+```csv
+id,name,address,city,district,telephone,longitude,latitude,tag,search_query
+e6ee2fd2e55bef512b11d1c8,首都医科大学附属北京友谊医院(西城院区),北京市西城区永安路95号,北京市,西城区,(010)63138585,116.39852,39.891551,1.0,医院
+```
 
----
+### S3. 环境数据（空气质量 + 水质量，Kaggle）
+
+#### S3a. 空气质量+气象逐日数据
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://www.kaggle.com/datasets/houjihao/china-capitals-weather-and-air-quality-2023-2026 |
+| 采集脚本 | `crawler/fetch_env_air.py` |
+| 保存位置 | `data/raw/env_air/china_air_quality_daily.csv` |
+| 大小 | 12.7MB，40,424 行 × 20 列（31 个省会/直辖市，逐日） |
+| 许可 | 公开 Kaggle 数据集（附 LICENSE_NOTICE.md） |
+| 关键字段 | date, city_name, latitude, longitude, temperature_2m_mean_c, precipitation_sum_mm, pm2_5_mean_ug_m3, pm10_mean_ug_m3, nitrogen_dioxide_mean_ug_m3, ozone_mean_ug_m3, us_aqi_daily_max, european_aqi_daily_max |
+| 跨源关联字段 | 城市名（英文，经 utils.py 英文映射→省份）、经纬度、日期 |
+
+**样本展示**
+
+```csv
+date,city_name,province_level_region,city_type,latitude,longitude,temperature_2m_mean_c,precipitation_sum_mm,pm2_5_mean_ug_m3,pm10_mean_ug_m3,us_aqi_daily_max,european_aqi_daily_max
+2023-01-01,Beijing,Beijing,Municipality,39.9042,116.4074,-2.4,0.0,79.871,119.171,166,102
+```
+
+#### S3b. 水质量监测数据
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://www.kaggle.com/datasets/khushikyad001/china-water-pollution-monitoring-dataset |
+| 采集脚本 | `crawler/fetch_env_water.py` |
+| 保存位置 | `data/raw/env_water/china_water_pollution_data.csv` |
+| 大小 | 0.5MB，3,000 行 × 25 列 |
+| 许可 | 公开 Kaggle 数据集 |
+| 关键字段 | Province, City, Monitoring_Station, Latitude, Longitude, Date, pH, Dissolved_Oxygen_mg_L, Nitrate_mg_L, Ammonia_N_mg_L, Total_Phosphorus_mg_L, COD_mg_L, Heavy_Metals_Pb/Cd/Hg_ug_L, Water_Quality_Index, Pollution_Level |
+| 跨源关联字段 | 省份, 城市, 经纬度, 日期 |
+
+**样本展示**
+
+```csv
+Province,City,Monitoring_Station,Latitude,Longitude,Date,pH,Dissolved_Oxygen_mg_L,Ammonia_N_mg_L,Total_Phosphorus_mg_L,COD_mg_L,Water_Quality_Index,Pollution_Level
+Sichuan,Mianyang,Mianyang_Station_1,32.243099,112.88876,2023-03-05,6.89,8.14,0.38,0.147,16.82,66.25,Excellent
+```
 
 ### S4. ERA5 再分析气象数据
 
-- **来源**: https://cds.climate.copernicus.eu
-- **获取方式**: CDS API 下载
-- **采集脚本**: `crawler/s4_fetch_era5.py`
-- **清洗脚本**: `processing/cleaning/clean_s4.py`（NetCDF → CSV）
-- **原始规模**: 1,526 MB (3 个 NetCDF 文件)
-- **数据格式**: NetCDF (.nc) → CSV
-- **时间范围**: 2023-2025
-- **许可**: Copernicus 免费，需接受使用条款
-- **关键变量**: temperature_2m_K, dewpoint_2m_K, wind_u_10m, wind_v_10m, surface_pressure_Pa
-- **跨源关联字段**: 经纬度, 时间
-- **缺失值**: 0（完整数据集）
+**元数据描述**
 
----
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://cds.climate.copernicus.eu |
+| 数据集 | reanalysis-era5-single-levels |
+| 采集脚本 | `crawler/fetch_env_weather.py` |
+| 保存位置 | `data/raw/env_weather/era5_single_level_{2023,2024,2025}.nc` |
+| 大小 | 1.6GB（3 个年度 NetCDF） |
+| 时间范围 | 2023-2025（2023 年部分下载失败，保留 2024-2025 完整数据） |
+| 变量 | 2m温度、2m露点温度、10m风速 U/V 分量、地表气压 |
+| 区域 | 中国 [55°N, 70°E, 20°N, 140°E]，每日 4 时次（00/06/12/18 UTC） |
+| 许可 | Copernicus 免费，需接受使用条款（需 ~/.cdsapirc） |
+| 跨源关联字段 | 经纬度, 时间 |
 
-### S5. 国家统计局省级卫生指标
+**样本展示**
 
-- **来源**: https://data.stats.gov.cn/ (stream/esData API)
-- **获取方式**: API 调用
-- **采集脚本**: `crawler/s5_fetch_gbd.py`
-- **清洗脚本**: `processing/cleaning/clean_s5.py`
-- **原始规模**: 12 个 CSV 文件, 31,632 行 → 过滤 2023-2025 后 9,486 行
-- **数据格式**: CSV
-- **时间范围**: 2023-2025
-- **许可**: 政府公开数据
-- **覆盖领域** (12 个): 医疗卫生机构、卫生人员、每万人口卫生技术人员数、村卫生室、床位、社区卫生服务中心、门诊服务、住院服务、床位利用、乡镇卫生院、新农合
-- **关键字段**: province, adcode, year, indicator, value, value_num, domain
-- **缺失值**: 2023 缺失 31.7%，2024 缺失 59.6%，2025 缺失 100%（数据未发布，正常）
+```
+NetCDF 栅格结构（示意）：
+dims: time=1460, latitude=141, longitude=281
+variables: t2m(time,lat,lon) [K], d2m, u10, v10, sp
+示例: t2m[2024-06-01 00UTC, 39.75N, 116.25E] = 295.6 K → 22.4°C
+```
 
----
+### S5. 健康与医疗服务数据（国家数据平台 + WHO + COVID）
 
-### S6. 国家统计局省级社会经济指标
+#### S5a. 国家数据平台省级卫生指标
 
-- **来源**: https://data.stats.gov.cn/ (stream/esData API)
-- **获取方式**: API 调用
-- **采集脚本**: `crawler/s6_fetch_stats.py`
-- **清洗脚本**: `processing/cleaning/clean_s6.py`
-- **原始规模**: 35 个 CSV 文件, 195,580 行 → 过滤 2023-2025 后 51,234 行
-- **数据格式**: CSV
-- **时间范围**: 2023-2025
-- **许可**: 政府公开数据
-- **覆盖领域** (5 个): GDP与经济增长、就业与工资、地方财政、价格指数、居民生活
-- **关键字段**: province, adcode, year, indicator, value, value_num, domain
-- **缺失值**: 2023 缺失 47.7%，2024 缺失 52.4%，2025 缺失 95.7%（数据未发布，正常）
+**元数据描述**
 
----
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://data.stats.gov.cn/（分省年度数据） |
+| API端点 | `https://data.stats.gov.cn/dg/website/publicrelease/web/external/stream/esData` |
+| 采集脚本 | `crawler/fetch_health_service.py` |
+| 保存位置 | `data/raw/health_service/nbs_health_*.csv`（12 个领域文件） |
+| 大小 | 12 个领域共 ~31,000 行，31 省 × 2016-2025 |
+| 领域清单 | 医疗卫生机构、医疗卫生机构床位、卫生人员、每万人口卫生技术人员数、每万人口医疗卫生机构床位数、门诊服务、住院服务、乡镇卫生院医疗服务、村卫生室、社区卫生服务中心（按床位分组）、医院床位利用、新型农村合作医疗 |
+| 许可 | 公开政府数据 |
+| 关键字段 | province, adcode, year, indicator, value |
+| 跨源关联字段 | 省份, adcode, 年份 |
 
-### S7. 中国人口普查 + World Bank 人口指标
+**样本展示**
 
-- **来源**: 国家统计局第七次人口普查 + World Bank API
-- **获取方式**: 编译 + API
-- **采集脚本**: `crawler/s7_fetch_census.py`
-- **清洗脚本**: `processing/cleaning/clean_s7.py`
-- **原始规模**: 20 KB (2 个 CSV 文件, 297 行) → 清洗后 42 行
-- **数据格式**: CSV
-- **时间范围**: 2020 (普查) + 2023-2024 (World Bank)
-- **许可**: 公开数据
-- **内容**: 31 省常住人口(2020)、全国总人口/女性比例/城镇化率/预期寿命
-- **关键字段**: province, year, indicator, value, source
-- **跨源关联字段**: 省份名
-- **缺失值**: 0
+```csv
+province,adcode,year,indicator,value
+北京,110000000000,2025,卫生技术人员数 (万人),
+```
 
----
+#### S5b. WHO GHO 全球健康指标
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://www.who.int/data/gho |
+| API端点 | `https://ghoapi.azureedge.net/api/` |
+| 采集脚本 | `crawler/fetch_health_service.py` |
+| 保存位置 | `data/raw/health_service/who_gho_china_health.csv` |
+| 大小 | 94 条（13 个指标，2020-2025，中国） |
+| 许可 | CC BY 4.0 |
+| 关键指标 | 预期寿命、HALE、5 岁以下死亡率、孕产妇死亡率、粗出生/死亡率、肥胖率、结核发病率、人均卫生支出、每万人医生/床位数 |
+| 局限 | 仅国家级数据，无省级数据 |
+| 跨源关联字段 | 国家 (CHN), 年份 |
+
+**样本展示**
+
+```csv
+indicator_id,indicator_name,year,value,sex
+WHOSIS_000001,life_expectancy_at_birth,2020,77.48113543,SEX_BTSX
+```
+
+#### S5c. COVID-19 全球疫情数据
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 采集脚本 | 手动下载 |
+| 保存位置 | `data/raw/health_service/covid/covid-19-all.csv` |
+| 大小 | 1,241,952 行（全球逐日累计确诊/治愈/死亡） |
+| 关键字段 | Country/Region, Province/State, Latitude, Longitude, Confirmed, Recovered, Deaths, Date |
+| 跨源关联字段 | 国家/地区, 经纬度, 日期 |
+
+**样本展示**
+
+```csv
+Country/Region,Province/State,Latitude,Longitude,Confirmed,Recovered,Deaths,Date
+,,,,58316.0,33634.0,1181.0,2021-01-01
+```
+
+### S6. 国家数据平台省级经济指标
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://data.stats.gov.cn/ |
+| 采集脚本 | `crawler/fetch_econ.py` |
+| 保存位置 | `data/raw/econ_gdp/nbs_econ_gdp.csv`（GDP与经济增长）、`data/raw/econ_gdp/nbs_econ_finance.csv`（地方财政）、`data/raw/econ_price/nbs_econ_price.csv`（价格指数）、`data/raw/econ_labor/nbs_econ_labor.csv`（就业与工资）、`data/raw/econ_income/nbs_econ_income.csv`（居民人均可支配收入）、`data/raw/pop_age/nbs_pop_age_structure.csv`（年龄构成与抚养比）、`data/raw/pop_life_exp/nbs_life_expectancy.csv`（平均预期寿命） |
+| 大小 | 共 ~11MB，约 132,500 行（31 省 × 2006-2025，因领域而异） |
+| 领域清单 | GDP与经济增长（18 指标，2016-2025）、地方财政（2016-2025）、价格指数（326 指标，2006-2025）、就业与工资（36 指标，2011-2025）、居民收入（全体/城镇/农村，2016-2025）、人口年龄构成与抚养比（65岁及以上人口、抚养比，抽样调查年 2016-2024）、平均预期寿命（总/男/女，2020） |
+| 许可 | 公开政府数据 |
+| 关键字段 | province, adcode, year, indicator, value |
+| 跨源关联字段 | 省份, adcode, 年份 |
+
+**样本展示**
+
+```csv
+province,adcode,year,indicator,value
+北京,110000000000,2025,第一产业增加值 (亿元),109.2
+北京,110000000000,2025,地区生产总值 (亿元),52073.4
+北京,110000000000,2025,地方财政一般公共预算收入(亿元),6680.56
+北京,110000000000,2025,居民消费价格指数 (上年=100),99.9
+北京,110000000000,2025,城镇单位就业人员 (万人),
+北京,110000000000,2025,全体居民人均可支配收入 (元),89090
+北京,110000000000,2024,65岁及以上人口数 (人口抽样调查) (人),13399
+北京,110000000000,2020,平均预期寿命 (岁),
+```
+
+### S7. 人口数据（七普 + World Bank）
+
+#### S7a. 第七次全国人口普查
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://www.stats.gov.cn/sj/tjgb/rkpcgb/（第七次普查公报） |
+| 采集脚本 | `crawler/fetch_pop.py`（公报数据编译） |
+| 保存位置 | `data/raw/pop_census/census_7_province_population.csv` |
+| 大小 | 2KB，31 省常住人口（万人 + 人），2020 年 |
+| 许可 | 公开数据 |
+| 关键字段 | province, adcode, population_wan, population, year |
+| 跨源关联字段 | 省份, adcode |
+
+**样本展示**
+
+```csv
+province,adcode,population_wan,population,year,source
+山东,370000,10153,101530000,2020,第七次全国人口普查
+```
+
+#### S7b. World Bank 中国指标
+
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://api.worldbank.org/v2/country/CHN/indicator/ |
+| 采集脚本 | `crawler/fetch_pop.py` (fetch_worldbank) |
+| 保存位置 | `data/raw/pop_wb/worldbank_population_china.csv`、`world_bank_health_social.csv`、`world_bank_supplement.csv` |
+| 大小 | 36KB，2,325 行（15+ 指标，1960-2025） |
+| 关键指标 | 总人口、城镇化率、预期寿命、出生/死亡率、婴儿死亡率、人均 GDP、卫生支出占 GDP、每千人医生/床位数、基尼系数、贫困率 |
+| 许可 | CC BY 4.0 |
+| 跨源关联字段 | 国家, 年份 |
+
+**样本展示**
+
+```csv
+indicator_code,indicator_name,year,value
+SP.POP.TOTL,total_population,2024,1408975000.0
+```
 
 ### S8. 行政区划边界矢量数据
 
-- **来源**: https://geo.datav.aliyun.com/areas_v3/bound/ (阿里云 DataV)
-- **获取方式**: REST API 下载
-- **采集脚本**: `crawler/s8_fetch_admin_boundary.py`
-- **清洗脚本**: `processing/cleaning/clean_s8.py`
-- **原始规模**: 32 个 GeoJSON 文件, 4.4 MB → 合并后 4,498 KB, 484 features
-- **数据格式**: GeoJSON
-- **时间范围**: 静态
-- **许可**: 公开数据
-- **内容**: 全国边界 + 31 省市级子区域边界
-- **关键字段**: adcode, name, level, parent
-- **跨源关联字段**: adcode, 行政区划名称
-- **缺失值**: name 缺失 0 个（adcode 填充）
+**元数据描述**
+
+| 属性 | 内容 |
+|------|------|
+| 来源 | https://geo.datav.aliyun.com/areas_v3/bound/ |
+| 采集脚本 | `crawler/fetch_geo_boundary.py` |
+| 保存位置 | `data/raw/geo_boundary/`（`{adcode}_{name}.json` × 31 + `100000_china.json`） |
+| 大小 | 4.6MB（32 个 GeoJSON 文件） |
+| 数据格式 | GeoJSON |
+| 关键内容 | 省级边界（31 个，含市级行政区）、全国边界（1 个） |
+| 许可 | 公开数据 |
+| 跨源关联字段 | adcode, 行政区划名称 |
+
+**样本展示**
+
+```json
+{"type": "Feature", "properties": {"adcode": 110101, "name": "东城区", "center": [116.418757, 39.917544], "centroid": [116.416718, 39.912934]}}
+```
 
 ---
 
-## 跨源关联设计
+## 跨源关联方式
 
-| 关联维度 | 涉及数据源 | 关联键 | 说明 |
-|---------|-----------|--------|------|
-| 空间关联 | S1+S2+S3+S4+S8 | 经纬度 → 行政区划 | Point-in-Polygon 空间 Join |
-| 时间关联 | S3+S4+S5+S6 | 年份/月份 | 年度数据对齐 |
-| 实体关联 | 所有源 | 省份/城市名称 | 中英文映射表统一命名 |
-| 行政区划关联 | S2+S5+S6+S7+S8 | adcode | 12 位行政区划代码 |
+| 关联维度 | 涉及数据源 | 关联键 |
+|---------|-----------|--------|
+| 空间关联 | S1+S2+S3+S4+S5c+S8 | 经纬度 → 行政区划 (Point-in-Polygon)，或城市名→省份映射 |
+| 时间关联 | S3+S4+S5+S6+S7 | 年份/日期（省级统一 2016-2025，环境 2023-2025） |
+| 实体关联 | 所有源 | 省份/城市名称（中英文映射，见 `processing/cleaning/utils.py`） |
 
----
-
-## 数据质量总结
-
-| 数据源 | Raw 缺失值 | Cleaned 缺失值 | 处理方式 |
-|--------|-----------|---------------|---------|
-| S2 | telephone 34.3% | 保留 NA | 正常（部分 POI 无电话） |
-| S3 | 0 | 0 | 完整数据集 |
-| S4 | 0 | 0 | 完整数据集 |
-| S5 | 63.7% | 2023: 31.7%, 2024: 59.6%, 2025: 100% | 保留 NA（数据未发布） |
-| S6 | 65.3% | 2023: 47.7%, 2024: 52.4%, 2025: 95.7% | 保留 NA（数据未发布） |
-| S7 | 0 | 0 | 完整数据集 |
-| S8 | name 缺失 0 | 0 | adcode 填充 |
-
----
-
-## 采集日志
-
-### S2 采集日志
-
-```
-[S2] 百度地图 POI 采集 (区县级)
-[S2] 检查 API 额度...
-  API Key 有效, 额度正常
-[S2] 获取区县列表...
-  共 2994 个区县
-
-  类型: 医院 (090100)
-    [1/2994] 北京 / 医院: +78
-    [2/2994] 北京 / 医院: +60
-    ...
-
-采集结果: 7,129 条原始 → 去重后 6,809 条
-覆盖省份: 25/31 (缺少: 内蒙古、安徽、江西、海南、福建、西藏)
-```
-
-### S3 采集日志
-
-```
-[S3] 从 Kaggle 下载数据集
-  数据集: houjihao/china-capitals-weather-and-air-quality-2023-2026
-  下载完成: 1440 KB
-  ZIP 内容:
-    china_provincial_capitals_daily_weather_air_quality_2023_2026.csv (7043 KB)
-    cities.csv (1 KB)
-    data_dictionary.csv (1 KB)
-
-[S3] 处理数据: china_provincial_capitals_daily_weather_air_quality_2023_2026.csv
-  原始: 40424 行 × 20 列
-  城市: 31 个
-  时间: 2023-01-01 ~ 2026-07-27
-  过滤 2023-2025 后: 33976 行
-  缺失值: 0
-```
-
-### S4 采集日志
-
-```
-[S4] ERA5 气象数据采集
-  变量: 2m_temperature, 2m_dewpoint_temperature, 10m_u/v_component_of_wind, surface_pressure
-  区域: 中国 [55, 70, 20, 140]
-  年份: 2023-2025
-
-  下载 ERA5 单层变量 2023... 完成 (526 MB)
-  下载 ERA5 单层变量 2024... 完成 (527 MB)
-  下载 ERA5 单层变量 2025... 完成 (533 MB)
-  合计: 1,526 MB (3 个 NetCDF 文件)
-```
-
-### S5 采集日志
-
-```
-[S5] 获取卫生领域列表...
-  医疗卫生机构: 16 个指标
-  卫生人员: 10 个指标
-  每万人口卫生技术人员数: 9 个指标
-  村卫生室情况: 7 个指标
-  医疗卫生机构床位: 9 个指标
-  每万人口医疗机构床位数: 9 个指标
-  按床位数分组的社区卫生服务中心: 11 个指标
-  医疗卫生机构门诊服务情况: 7 个指标
-  医疗卫生机构住院服务情况: 6 个指标
-  医院床位利用情况: 8 个指标
-  乡镇卫生院医疗服务情况: 4 个指标
-  新型农村合作医疗情况: 6 个指标
-
-  共 12 个领域, 96 个指标
-
-[1/12] 医疗卫生机构... → 4960 条
-[2/12] 卫生人员... → 3100 条
-...
-[12/12] 新型农村合作医疗情况... → 1860 条
-
-采集汇总:
-  医疗卫生机构                    |   4960 条 | 16 指标
-  卫生人员                        |   3100 条 | 10 指标
-  每万人口卫生技术人员数           |   2790 条 |  9 指标
-  村卫生室情况                    |   2170 条 |  7 指标
-  医疗卫生机构床位                |   2790 条 |  9 指标
-  每万人口医疗机构床位数           |   2790 条 |  9 指标
-  按床位数分组的社区卫生服务中心    |   3410 条 | 11 指标
-  医疗卫生机构门诊服务情况         |   2170 条 |  7 指标
-  医疗卫生机构住院服务情况         |   1860 条 |  6 指标
-  医院床位利用情况                |   2480 条 |  8 指标
-  乡镇卫生院医疗服务情况          |   1240 条 |  4 指标
-  新型农村合作医疗情况            |   1860 条 |  6 指标
-  总计                           |  31630 条 | 96 指标
-```
-
-### S6 采集日志
-
-```
-[S6] 获取经济领域列表...
-  GDP与经济增长: 2 个子领域 (地区生产总值、GDP指数)
-  就业与工资: 12 个子领域
-  地方财政: 2 个子领域 (财政收入、支出)
-  价格指数: 11 个子领域
-  居民生活: 8 个子领域
-
-  共 35 个子领域
-
-采集结果:
-  GDP与经济增长: 5,580 条
-  就业与工资: 58,800 条
-  地方财政: 14,880 条
-  价格指数: 106,910 条
-  居民生活: 26,410 条
-  总计: 195,580 条
-```
-
-### S7 采集日志
-
-```
-[S7] 采集第七次全国人口普查数据...
-  七普公报第一号: 2094 字符
-  七普公报第二号: 1106 字符
-  ...
-  分省人口: 31 省份 → census_7_province_population.csv
-
-[S7] 从世界银行获取人口数据...
-  total_population: 65 条
-  female_pct: 65 条
-  urbanization_rate: 65 条
-  life_expectancy: 65 条
-  总计 264 条 → worldbank_population_china.csv
-```
-
-### S8 采集日志
-
-```
-[S8] 下载行政区划边界数据...
-  china (100000): 35 个子区域
-  beijing (110000): 16 个子区域
-  tianjin (120000): 16 个子区域
-  ...
-  xinjiang (650000): 24 个子区域
-  共下载 32 个文件, 合计 4.4 MB
-```
+关联层级说明：省级融合（S5a+S6+S7+S8）覆盖 31 省完整；城市级融合（S2+S3a+S8）覆盖 31 个省会城市；S5b/S7b 为国家级对照。

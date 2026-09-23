@@ -29,16 +29,23 @@ DATA_DIR = PROJECT_ROOT / "data" / "raw"
 # HTTP 请求头
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"}
 
-# 各数据源输出目录
+# 各数据源输出目录 (S1-S8 编号与 data_sources.md 对应)
 OUTPUT_DIRS = {
-    "osm": DATA_DIR / "s1_osm",
-    "baidu": DATA_DIR / "s2_baidu",
-    "openaq": DATA_DIR / "s3_openaq",
-    "era5": DATA_DIR / "s4_era5",
-    "gbd": DATA_DIR / "s5_gbd",
-    "stats": DATA_DIR / "s6_stats",
-    "census": DATA_DIR / "s7_census",
-    "admin_boundary": DATA_DIR / "s8_admin_boundary",
+    "s1_geo_road": DATA_DIR / "geo_road",           # S1: OSM 路网
+    "s2_health_resource": DATA_DIR / "health_resource",  # S2: 百度医疗 POI
+    "s3_env_air": DATA_DIR / "env_air",             # S3a: 空气质量 (Kaggle)
+    "s3_env_water": DATA_DIR / "env_water",         # S3b: 水质量 (Kaggle)
+    "s4_env_weather": DATA_DIR / "env_weather",     # S4: ERA5 气象
+    "s5_health_service": DATA_DIR / "health_service",    # S5: 省级卫生 + WHO + COVID
+    "s6_econ": DATA_DIR / "econ_gdp",               # S6: 省级经济指标 (GDP+财政)
+    "s6_econ_price": DATA_DIR / "econ_price",       # S6: 价格指数
+    "s6_econ_labor": DATA_DIR / "econ_labor",       # S6: 就业与工资
+    "s6_econ_income": DATA_DIR / "econ_income",     # S6: 居民人均可支配收入
+    "s6_pop_age": DATA_DIR / "pop_age",             # S6: 年龄构成与抚养比
+    "s6_pop_life_exp": DATA_DIR / "pop_life_exp",   # S6: 平均预期寿命
+    "s7_pop_census": DATA_DIR / "pop_census",       # S7a: 七普人口
+    "s7_pop_wb": DATA_DIR / "pop_wb",               # S7b: World Bank
+    "s8_geo_boundary": DATA_DIR / "geo_boundary",   # S8: 行政边界
 }
 
 
