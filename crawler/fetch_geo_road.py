@@ -46,7 +46,8 @@ def fetch(output_dir):
                 print(f"[S1] 完成: {out.stat().st_size // 1024 // 1024} MB")
                 break
             except Exception as e:
-                print(f"\n[S1] 中断于 {part.stat().st_size/1024/1024:.0f} MB: {type(e).__name__} (第 {retry+1}/5 次重试)")
+                part_size = part.stat().st_size / 1024 / 1024 if part.exists() else 0
+                print(f"\n[S1] 中断于 {part_size:.0f} MB: {type(e).__name__} (第 {retry+1}/5 次重试)")
                 time.sleep(5)
         else:
             raise RuntimeError(f"[S1] {filename} 下载多次失败，.part 文件已保留，可重跑续传")
