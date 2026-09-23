@@ -15,10 +15,13 @@ def fetch(output_dir):
     for region, url in REGIONS.items():
         filename = url.split("/")[-1]
         out = output_dir / filename
-        # 已完整下载则跳过；存在 .part 文件则断点续传
+        # 已完整下载则跳过
+        if out.exists():
+            print(f"[S1] 已存在: {filename}")
+            continue
+        # 存在 .part 文件则断点续传
         part = out.with_suffix(out.suffix + ".part")
         for retry in range(5):
-            headers = None
             resume_from = part.stat().st_size if part.exists() else 0
             dl_headers = {"Range": f"bytes={resume_from}-"} if resume_from else {}
             try:
