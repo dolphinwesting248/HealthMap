@@ -1,24 +1,34 @@
-# 采集
-requests
-beautifulsoup4
-lxml
-python-dotenv
-openpyxl
+# 项目依赖 —— 城市环境、医疗资源与居民健康 多源数据融合分析
+# 安装:  python -m pip install -r requirements.txt
+# 版本下限为本项目实际验证通过的版本 (Python 3.12)。
+#
+# 注意: 路网处理另需系统级包 osmium-tool (非 pip):
+#   Ubuntu/Debian: sudo apt install osmium-tool
+#   作用: S1 路网 POI 提取与可达性窗口裁剪, 相对纯 Python 扫描提速约 100 倍。
 
-# 数据处理与融合
-pandas
-numpy
-networkx
-shapely
-osmium          # pyosmium；路网处理另需系统包 osmium-tool (apt install osmium-tool)
+# ---------- 采集 (crawler/) ----------
+requests>=2.32          # 全部 API/HTTP 采集
+beautifulsoup4>=4.12    # 网页解析 (普查公报等)
+lxml>=5.0               # BeautifulSoup 解析器后端
+python-dotenv>=1.0      # .env 读取 API Key / 代理配置
+openpyxl>=3.1           # Excel 读写
+cdsapi>=0.7             # ERA5 气象数据下载 (crawler/fetch_env_weather.py)
 
-# 空间分析
-geopandas
-libpysal
-esda
+# ---------- 数据处理与融合 (processing/) ----------
+pandas>=2.2             # 全流程表格处理
+numpy>=1.26             # 数值计算
+networkx>=3.2           # 路网图构建与最短路 (q2 可达性)
+shapely>=2.0            # 几何运算: 严格 Point-in-Polygon 空间关联 (spatial_join.py)
+osmium>=3.6             # pyosmium: 读取 .osm.pbf (需配合系统包 osmium-tool)
+xarray>=2024.1          # NetCDF 读取 (processing/cleaning/clean_env_weather.py)
 
-# 统计分析与可视化
-statsmodels
-scipy
-scikit-learn
-matplotlib
+# ---------- 空间分析 ----------
+geopandas>=1.0          # 地理数据框 (空间索引/可视化)
+libpysal>=4.9           # 空间权重矩阵 (KNN/Queen)
+esda>=2.5               # 空间自相关: Moran's I / LISA
+
+# ---------- 统计分析与可视化 ----------
+statsmodels>=0.14       # 面板回归 (TWFE)、分位数回归、聚类稳健标准误
+scipy>=1.11             # 统计检验 (Kendall τ 等)
+scikit-learn>=1.4       # 聚类 (KMeans) 等数据挖掘方法
+matplotlib>=3.8         # 图表与关联图绘制 (visualization/)
