@@ -99,8 +99,11 @@ data/integrated/q3_equity/q3_equity_metrics.csv      # 年度公平性指标（1
 ## 5. 代码放哪里
 
 ```
-analysis/        # 分析脚本放这里（目前为空，等你来写）
-visualization/   # 出图脚本放这里（现有 data_lineage.py 是关联图）
+analysis/        # 分析脚本放这里
+  └──q1_environment_health/  # 不同的研究问题放在不同文件夹下
+  └──q2_healthcare_access
+  └──q3_equity
+visualization/   # 出图脚本放这里
 ```
 
 `analysis.md` 第五节列了 7 张建议的核心可视化及其数据来源，可直接照做。
