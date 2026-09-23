@@ -148,7 +148,7 @@ outcome_er_mortality  ~ econ_income_total + acc_nearest_km_p90 + air_pm25_mean
 
 ---
 
-## 六、高级方法菜单（进阶可选，样本要求在速查内）
+## 六、进阶方法清单（可选，样本要求在速查内）
 
 以下方法在本仓库环境 (statsmodels/scipy/sklearn/esda/libpysal) **已装齐并试探性跑通**，每项都给出"适用场景 + 参考输出"：
 
@@ -226,4 +226,4 @@ m = sm.OLS(y, sm.add_constant(X)).fit(cov_type="cluster", cov_kwds={"groups": d[
 | 6 | KMeans 省分层聚类 (health-stress typology) | 补充叙事 |
 
 **依赖已装齐**: statsmodels 0.15, scipy 1.18, sklearn 1.9, esda 2.10, libpysal 4.15, shapely 2.1 (q2 access), geopandas 1.1.4。
-工作量估计：分析＋图 6–8 张 ≈ 1–2 天编码, 全部数据已就位, 无需再补数据。
+

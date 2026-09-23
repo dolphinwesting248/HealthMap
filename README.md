@@ -25,6 +25,15 @@
 
 > 各数据源的详细说明（获取方式、时间范围、许可、关键字段、跨源关联方式）见 [data_sources.md](data_sources.md)；清洗后数据说明见 [cleaned_data.md](docs/cleaned_data.md)；整合后数据说明见 [integrated_data.md](docs/integrated_data.md)；分析指南见 [analysis.md](docs/analysis.md)。
 
+### 数据关联图与质量验证
+
+| 材料 | 位置 |
+|------|------|
+| **多源数据关联图**（血缘图：8 源 → cleaned → integrated → Q1/Q2/Q3，标注三种关联维度） | [imgs/data_lineage.png](imgs/data_lineage.png)（源码 `visualization/data_lineage.py`）|
+| 数据质量检查报告（完整性/唯一性/有效性/一致性 四类规则） | [docs/data_quality_report.md](docs/data_quality_report.md) |
+| 跨源空间关联验证（严格 Point-in-Polygon vs 近似的误差量化） | [docs/spatial_association_validation.md](docs/spatial_association_validation.md) |
+| 数据清单与 MD5 校验值 | [docs/data_manifest.md](docs/data_manifest.md) |
+
 ## 快速开始
 
 ```bash
@@ -39,12 +48,20 @@ for f in processing/cleaning/clean_*.py; do python "$f"; done
 # 融合
 for f in processing/integrating/q*_*.py; do python "$f"; done
 
+# 质量检查 / 空间关联验证 / 数据清单
+python processing/cleaning/quality_check.py
+python processing/integrating/spatial_join.py
+python scripts/make_manifest.py
+
+# 图件 (关联图等)
+python visualization/data_lineage.py
+
 # 分析 (代码在 analysis/, 图输出到 visualization/) — 见 docs/analysis.md
 ```
 
 ## 环境依赖
 
 - Python 3.12+；基础: requests, pandas, numpy, beautifulsoup4, lxml, python-dotenv
-- 融合/分析: networkx, shapely, osmium, statsmodels, scipy, scikit-learn, esda, libpysal, geopandas
+- 融合/分析: networkx, shapely, osmium, geopandas, matplotlib, statsmodels, scipy, scikit-learn, esda, libpysal
 - 路网处理: [`osmium-tool`](https://osmcode.org/osmium-tool/) (apt install osmium-tool) — 100× 提速
 - API Key配置: 复制 `.env.example` 为 `.env` 并填入 `BAIDU_AK` 等

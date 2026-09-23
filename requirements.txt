@@ -1,7 +1,24 @@
+# 采集
 requests
-pandas
-openpyxl
 beautifulsoup4
 lxml
-numpy
 python-dotenv
+openpyxl
+
+# 数据处理与融合
+pandas
+numpy
+networkx
+shapely
+osmium          # pyosmium；路网处理另需系统包 osmium-tool (apt install osmium-tool)
+
+# 空间分析
+geopandas
+libpysal
+esda
+
+# 统计分析与可视化
+statsmodels
+scipy
+scikit-learn
+matplotlib

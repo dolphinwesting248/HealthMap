@@ -53,54 +53,38 @@ KEEP = {
 
 
 def poi_by_province():
-    """S2 POI → 落省计数 (lng_wgs84 in 省中心最近归属, 半径近似)"""
+    """S2 POI → 落省计数
+
+    空间关联升级: 用严格 Point-in-Polygon (spatial_join.assign_by_polygon) 替代
+    此前的"最近省中心"近似 —— 验证显示后者与 PIP 仅 84.75% 一致, 误差不可忽略。
+    PIP 未命中的点 (边境/海上) 回退到最近省中心, 保证覆盖率。
+    """
     import sys
-    sys.path.insert(0, str(PROCESSING_DIR / "cleaning"))
-    from utils import normalize_province
+    sys.path.insert(0, str(PROCESSING_DIR / "integrating"))
+    from spatial_join import assign_by_polygon, assign_by_nearest_center, province_polygons
 
     poi = pd.read_csv(CLEANED / "health_resource_poi.csv")
-    poi = poi[poi["longitude_wgs84"].notna()]
+    poi = poi[poi["longitude_wgs84"].notna()].copy()
+    polys = province_polygons(mainland_only=True)  # S2 源自内地 31 省会
+    poi = assign_by_polygon(poi, "longitude_wgs84", "latitude_wgs84", polys)
 
-    gb = json.loads((CLEANED / "geo_boundary.geojson").read_text(encoding="utf-8"))
+    # 回退策略 (多级实体映射): PIP 未命中 → 用 POI 自带城市名映射的 province (最可靠);
+    # 再兜底才是最近省中心。珠海海岛 POI 若用最近中心会被误判为澳门/香港。
+    src = poi["province"].astype(str).replace({"nan": None})
+    miss = poi["province_pip"].isna()
+    n_by_city = int((miss & src.notna()).sum())
+    poi.loc[miss & src.notna(), "province_pip"] = src[miss & src.notna()]
+    still = poi["province_pip"].isna()
+    if still.any():
+        fb = assign_by_nearest_center(poi[still], "longitude_wgs84", "latitude_wgs84", polys)
+        poi.loc[still, "province_pip"] = fb["province_nearest"].values
 
-    def flatten(c):
-        if isinstance(c[0], (int, float)):
-            yield c
-        else:
-            for sub in c:
-                yield from flatten(sub)
-
-    centers = {}
-    for f in gb["features"]:
-        p = f["properties"]
-        if p.get("level") != "province":
-            continue
-        lons, lats = [], []
-        for lon, lat in flatten(f["geometry"]["coordinates"]):
-            lons.append(lon); lats.append(lat)
-        if lons:
-            centers[normalize_province(p["name"])] = (np.mean(lons), np.mean(lats))
-
-    names = list(centers)
-    clon = np.array([centers[n][0] for n in names])
-    clat = np.array([centers[n][1] for n in names])
-    lon = np.deg2rad(poi["longitude_wgs84"].to_numpy())
-    lat = np.deg2rad(poi["latitude_wgs84"].to_numpy())
-    best_i = np.zeros(len(poi), dtype=int)
-    best_d = None
-    for i, n in enumerate(names):
-        d = (np.deg2rad(clat[i]) - lat)**2 + ((np.deg2rad(clon[i]) - lon) * np.cos(lat))**2
-        if best_d is None:
-            best_d = d
-        else:
-            upd = d < best_d
-            best_i[upd] = i
-            best_d = np.where(upd, d, best_d)
-    poi["_prov"] = [names[i] for i in best_i]
-    # 说明: S2 两参坐标覆盖 31 省会城市 (非全部省), _prov 用最近省中心划分
-    poi["province"] = poi["province"].apply(normalize_province)
-    # 直接用 POI 自带 province 优先, 落点归属仅做校验
-    counts = poi.groupby("province").size().rename("poi_count_s2").reset_index()
+    agree = (poi["province_pip"] == src).mean()
+    log(f"  POI 空间归属: PIP 直接命中 {int((~miss).sum())} 条, "
+        f"城市名回退 {n_by_city} 条, 最近中心兜底 {int(still.sum())} 条; "
+        f"与源省份字段吻合率 {agree:.2%}")
+    counts = poi.groupby("province_pip").size().rename("poi_count_s2").reset_index()
+    counts = counts.rename(columns={"province_pip": "province"})
     return counts
 
 

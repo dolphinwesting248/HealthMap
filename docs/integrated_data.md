@@ -9,13 +9,13 @@
 
 | 文件 | 所在文件夹 | 大小 | 规模 | 粒度 | 年份覆盖 | 研究问题 |
 |------|-----------|------|------|------|---------|---------|
-| q1_env_exposure_province.csv | q1_environment_health | 27KB | 102 行 × 35 列 | 省×年 | 空气 2023-25 / 水 2023 / ERA5 2023-2025 | Q1 |
+| q1_env_exposure_province.csv | q1_environment_health | 27KB | 99 行 × 35 列 | 省×年 | 空气 2023-25 / 水 2023 / ERA5 2023-2025 | Q1 |
 | q1_health_outcome_province.csv | q1_environment_health | 30KB | 279 行 × 22 列 | 省×年 | 2016-2024 (寿命 2020) | Q1 |
-| q1_env_health_panel.csv | q1_environment_health | 71KB | 319 行 × 58 列 | 省×年 | 全年（env 仅 23+） | Q1 分析面板 |
+| q1_env_health_panel.csv | q1_environment_health | 71KB | 316 行 × 58 列 | 省×年 | 全年（env 仅 23+） | Q1 分析面板 |
 | q2_medical_resource_province.csv | q2_healthcare_access | 42KB | 279 行 × 28 列 | 省×年 | 2016-2024 | Q2 |
 | q2_healthcare_accessibility_city.csv | q2_healthcare_access | 20KB | 363 行 × 13 列 | 城市(363城) | 单点 | Q2 |
 | q3_equity_metrics.csv | q3_equity | 4KB | 10 行 × 25 列 | 全国年度横截面 | 2016-2025 | Q3 |
-| q3_equity_panel.csv | q3_equity | 159KB | 319 行 × 100 列 | 省×年 | 全要素总面板 | Q1/Q2/Q3 |
+| q3_equity_panel.csv | q3_equity | 158KB | 316 行 × 100 列 | 省×年 | 全要素总面板 | Q1/Q2/Q3 |
 
 ---
 
@@ -29,7 +29,7 @@
 |------|------|
 | 生成脚本 | `q1_env_exposure_province.py` |
 | 输入 | cleaned: env_air_quality, env_water_quality, env_weather_{y}, geo_boundary |
-| 输出 | 102 省×年 × 35 列 |
+| 输出 | 99 省×年 × 35 列 |
 | 粒度 | 省×年 |
 
 **输出列摘要**
@@ -38,7 +38,7 @@
 |---|---|------|
 | air（来自 31 省会逐日）×13 | air_pm25_mean/max, pm10, aqi_mean/max, o3, no2, days_aqi_gt100, precip_sum, precip_days, temp_mean | 省会城市日均值的省域聚合; 年份受 Kaggle 源限制 2023-2025 |
 | water（10 省监测站）×17 | water_wqi_mean/min, do, cod, nh3n, pH, TN, TP, nitrate, nitrite, bod, Pb/Cd/Hg, coliform, polluted_frac, stations | 源数据自身仅 10 省; **2023 单年** |
-| ERA5 气象 | weather_t2m_mean, d2m, wind_mean/max (hypot(u,v) 合成), n_grid | 格点→最近省中心, 2023-2025 |
+| ERA5 气象 | weather_t2m_mean, d2m, wind_mean/max (hypot(u,v) 合成), n_grid | 格点→省 **严格 Point-in-Polygon**；境外(海/邻国)格点剔除, 2023-2025 |
 
 **样本**
 
@@ -50,7 +50,7 @@ province,year,air_pm25_mean,...,water_wqi_mean,...,weather_t2m_mean,...
 **生成策略**
 1. air: 省会城市×日 → province 聚合 mean/max; 英文省名 normalize → 中文
 2. water: 数据自带 province 列（10 省）直接用（旧版曾按经纬度最近省中心错配为 29 省, 已修正）
-3. ERA5 147×141 格点×daily → 每 3 格点取 1 (0.75°); 格点中心-省中心最近邻
+3. ERA5 147×141 格点×daily → 每 3 格点取 1 (0.75°); 格点→省用**严格 Point-in-Polygon**，国境外(海/邻国)格点剔除（境内占 44.7%）
 
 ---
 
@@ -85,7 +85,7 @@ province,year,air_pm25_mean,...,water_wqi_mean,...,weather_t2m_mean,...
 |------|------|
 | 生成脚本 | `q1_panel_build.py` |
 | 输入 | Q1 暴露/结局两表 + cleaned econ_income (控制) |
-| 输出 | 319 省×年 × 58 列 |
+| 输出 | 316 省×年 × 58 列 |
 | 结构 | `province, year, [air_* x7, water_* x17, weather_* x4], [outcome_* x8, outsvc_* x7, life_expectancy* x3, age_pop* x6], econ_income_total/urban/rural` |
 
 **样本**
@@ -106,7 +106,7 @@ province,year,air_pm25_mean,...,outcome_er_mortality_rate,...,econ_income_total
 
 | 属性 | 内容 |
 |------|------|
-| 生成脚本 | `q2_medical_resource_province.py` |
+| 生成脚本 | `q2_medical_resource_province.py`（空间归属用 `spatial_join.py` 的严格 PIP）|
 | 输入 | cleaned: health_service（101 指标中挑 19 core）、health_resource_poi（9,893 POI）、geo_boundary（POI 落省 + 面积近似）、pop_census（七普分母）、econ_pop_age（65+人口） |
 | 输出 | 279 省×年 × 28 列 |
 
@@ -201,7 +201,7 @@ year,gini_per10k_beds_all,gini_real_income,theil_real_income,theil_between_share
 |------|------|
 | 生成脚本 | `q3_panel_build.py` |
 | 输入 | Q1 panel + Q2 资源 + **Q2 城市可达性 (省均聚合, 含 P90)** + econ_labor (卫生社工就业) + pop_wb (World Bank 国家级背景) |
-| 输出 | 319 省×年 × 100 列 |
+| 输出 | 316 省×年 × 100 列 |
 
 **输出列摘要**
 
