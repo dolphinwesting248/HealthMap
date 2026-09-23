@@ -23,5 +23,28 @@
 | S7 人口数据 | 政府公报/统计数据 (CSV) | 39KB |
 | S8 行政区划边界 | 地理空间矢量 (GeoJSON) | 4.6MB |
 
-> 各数据源的详细说明（获取方式、时间范围、许可、关键字段、跨源关联方式）见 [data_sources](data_sources.md)。清洗后数据详细说明见 [cleaned data](./docs/cleaned_data)，整合后数据详细说明见 [integrated data](./docs/integrated_data)
+> 各数据源的详细说明（获取方式、时间范围、许可、关键字段、跨源关联方式）见 [data_sources.md](data_sources.md)；清洗后数据说明见 [cleaned_data.md](docs/cleaned_data.md)；整合后数据说明见 [integrated_data.md](docs/integrated_data.md)；分析指南见 [analysis.md](docs/analysis.md)。
 
+## 快速开始
+
+```bash
+source .venv/bin/activate
+
+# 采集 (需重现数据时)
+for f in crawler/fetch_*.py; do python "$f"; done
+
+# 清洗
+for f in processing/cleaning/clean_*.py; do python "$f"; done
+
+# 融合
+for f in processing/integrating/q*_*.py; do python "$f"; done
+
+# 分析 (代码在 analysis/, 图输出到 visualization/) — 见 docs/analysis.md
+```
+
+## 环境依赖
+
+- Python 3.12+；基础: requests, pandas, numpy, beautifulsoup4, lxml, python-dotenv
+- 融合/分析: networkx, shapely, osmium, statsmodels, scipy, scikit-learn, esda, libpysal, geopandas
+- 路网处理: [`osmium-tool`](https://osmcode.org/osmium-tool/) (apt install osmium-tool) — 100× 提速
+- API Key配置: 复制 `.env.example` 为 `.env` 并填入 `BAIDU_AK` 等
