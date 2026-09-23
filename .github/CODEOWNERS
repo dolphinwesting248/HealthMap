@@ -1,0 +1,12 @@
+# ---------- 数据流程：采集 / 清洗 / 融合 ----------
+/crawler/                @dolphinwesting248 @westing2718
+/processing/             @dolphinwesting248 @westing2718
+/scripts/                @dolphinwesting248 @westing2718
+
+# ---------- 分析与可视化 ----------
+/analysis/               @dolphinwesting248 @westing2718
+/visualization/          @dolphinwesting248 @westing2718
+
+# ---------- 工程配置 ----------
+/requirements.txt        @dolphinwesting248 @westing2718
+/.github/                @dolphinwesting248 @westing2718

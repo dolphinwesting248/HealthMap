@@ -40,9 +40,7 @@
 
 ## 协作指南
 
-面向负责**分析与可视化**的成员（数据获取、放置、分支工作流、文档规范等）：
-
-**→ [docs/collaboration.md](docs/collaboration.md)**
+面向负责**分析与可视化**的成员（数据获取、放置、分支工作流、文档规范等）：[collaboration.md](docs/collaboration.md)
 
 要点速览：
 
