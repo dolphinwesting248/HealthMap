@@ -154,19 +154,38 @@ pip install -r requirements.txt
 
 分析常用：`pandas numpy matplotlib` + `statsmodels scipy scikit-learn`（回归/聚类）+ `geopandas libpysal esda`（空间分析与地图）。
 
-### 7. 提交工作
+### 7. 提交工作（每次工作都开新分支）
+
+**不要在 `main` 上直接改**——每次工作开一个新分支，做完推上去提 PR，复核后合并。
 
 ```bash
-# 每次开工前先同步
-git pull
+# ① 同步 main
+git checkout main && git pull
 
-# 查看改了什么
+# ② 开新分支（命名: 工作类型/简短主题）
+git checkout -b analysis/q3-equity-trend
+#             ├─ analysis  分析
+#             ├─ viz       可视化
+#             ├─ docs      文档
+#             └─ fix       修 bug
+
+# ③ 干活，随时查看改动
 git status
+git diff
 
-# 提交
-git add analysis/ visualization/          # 只加你写的代码, 别加 data/
-git commit -m "analysis: 完成 Q3 基尼系数趋势图"
-git push
+# ④ 提交（只加你写的代码/文档, 别加 data/）
+git add analysis/ docs/analysis_q3.md
+git commit -m "analysis: 完成 Q3 基尼系数趋势分析"
+
+# ⑤ 推送分支
+git push -u origin analysis/q3-equity-trend
+
+# ⑥ 在 GitHub 上开 Pull Request（终端也可）
+gh pr create --fill --base main
+
+# ⑦ PR 合并后回到 main, 删掉本地分支
+git checkout main && git pull
+git branch -d analysis/q3-equity-trend
 ```
 
 **注意事项**：
@@ -174,13 +193,8 @@ git push
 - ❌ **不要 `git add data/`** —— 数据体积大且已在 `.gitignore` 中，提交会失败或撑爆仓库
 - ❌ 不要提交 `.venv/`、`__pycache__/`、大图片中间产物（`.gitignore` 已覆盖大部分）
 - ✅ 图片产出放 `imgs/`（如需要）或 `visualization/output/`
-- ✅ 需要别人复核或讨论时，可以开分支再提 PR：
-
-```bash
-git checkout -b analysis/q3-trend      # 建分支
-# ...写代码...
-git push -u origin analysis/q3-trend   # 推分支, 然后在 GitHub 上开 Pull Request
-```
+- ✅ 一次工作一个分支、一个 PR；分支别开太久，做完就合并，减少与他人改动的冲突
+- ⚠️ 若 `git push` 报 TLS/连接错误，重试一次通常即可（网络抖动）
 
 ### 8. 遇到数据问题怎么办
 
@@ -198,11 +212,6 @@ git push -u origin analysis/q3-trend   # 推分支, 然后在 GitHub 上开 Pull
 |---|---|
 | `README.md` | 新增数据/脚本/输出目录、快速开始命令变化、协作流程调整、新成员上手方式变化 |
 | `AI_USAGE.md` | 每次用 AI 完成了一段实际工作 —— 补上"任务 / 采纳情况 / 人工核验方式 / 修改与反思"，包括 AI 出错被纠正的记录 |
-| `docs/integrated_data.md` | 分析中发现某列的含义、口径、缺失情况与文档不符，或新增了融合数据 |
-| `docs/cleaned_data.md` | 清洗规则、字段、缺失策略发生变化 |
-| `data_sources.md` | 新增/更换数据源，或采集方式、时间范围、许可变化 |
-| `docs/data_quality_report.md` | 新增质量规则，或发现新的数据问题（跑 `quality_check.py` 会自动更新）|
-| `docs/data_manifest.md` | 数据文件有增删改（跑 `make_manifest.py` 会自动更新）|
 
 #### 应当新增的说明文档
 
@@ -212,13 +221,11 @@ git push -u origin analysis/q3-trend   # 推分支, 然后在 GitHub 上开 Pull
 |---|---|---|
 | 分析 | `docs/analysis_<主题>.md` | 研究问题、用了哪些表与字段、方法与选择理由、样本量与筛选条件、结果、**结论的局限** |
 | 可视化 | `docs/visualization.md` | 每张图回答什么问题、数据来源与口径、图在哪（文件路径）、怎么重新生成 |
-| 新增数据源/采集 | `docs/<源名>.md` | 获取方式、字段、许可、关联字段、已知问题 |
 
 分析方法与结论尤其要写清**验证过程**：做了什么检验、排除了哪些替代解释、哪里还不确定。图表要有问题式标题（如"降雨增加后道路速度是否下降？"），并在图注中标注数据范围、单位与来源。
 
 #### 几条习惯建议
 
-- **改完就跑一遍生成脚本**：`quality_check.py` / `spatial_join.py` / `make_manifest.py`，让报告与数据保持同步
 - **文档与代码同一个 PR/commit**：不要留"下次再补文档"
 - **发现文档与数据不符时**：先确认哪个是对的，再改错的那个；不要只改文档掩盖数据问题
 - **不确定写在哪**：`docs/analysis.md` 是分析路线的总纲，具体工作细节放各自的专题文档，不要都堆进总纲
