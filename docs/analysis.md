@@ -70,19 +70,21 @@ outcome_life_expectancy(2020) ~ air_pm25_mean(2023-25 均值) + econ_income_tota
 n=279 省×年 (2016–2024)：
 
 ```
-per10k_beds_calc ~ log(econ_income_total) + econ_income_urban/rural 差 (城乡差距)
+per10k_beds_calc ~ log(econ_income_total) + (econ_income_urban - econ_income_rural)
                    + 年 FE + 省 FE
 ```
 
-或反向：`log(econ_income) ~ per10k_beds_all`（资源对发展的边际贡献）
-`acc_nearest_km_mean` 等可达性省均值与 `per10k_beds_*` 的相关矩阵——资源密度高≠可达性高是常常被说道的点
+实际 279 省×年样本中，双向固定效应估计系数为：`log(econ_income_total)` = 46.9925，城乡收入差距 = -0.0004，R² = 0.9539。标准误按省聚类；现有结果未提供这两个系数的 p 值，因此只描述估计方向，不将其称为显著或因果效应。详细计算见 [Q2 主分析报告](analysis_q2_focused.md)。
+
+反向规格为 `log(econ_income_total) ~ per10k_beds_calc + (econ_income_urban - econ_income_rural) + 年 FE + 省 FE`；它也是关联检验，不应解读为资源对经济发展的因果边际贡献。`acc_nearest_km_mean` 等可达性省均值与 `per10k_beds_*` 的相关矩阵仍可作为扩展分析。
 
 ### 2.2 城市级可达性分析（363 城，单点横截面）
 
-- 描述统计：`nearest_hospital_min` median=35.3 分钟, IQR 21–55 分钟，极端值 1461 分钟（西部自治州）
-- **313/363 城 “大医院 30 分钟不可达”** —— 基层医疗可及性叙事的核心数字
-- 可达性与经纬度地图可视化（可用 q3_equity_panel 中 `acc_*` 列）
-- `major_nearest_km` vs `econ_income`（省均）回归 → 富裕省份大医院可达性更高的量化证据
+- 数据为 363 城单点快照，不构成时间面板。`nearest_hospital_min` 中位数 35.30 分钟，P25–P75 为 20.65–54.52 分钟，最大值 1461.70 分钟。
+- 脚本统计 329/363 城大医院 30 分钟不可达（90.63%）；按现有实现，`major_nearest_min` 缺失值填 999 后也计为不可达，故这是操作性口径，不全是已观测超时。
+- 城市横截面规格：`major_nearest_km ~ econ_income_mean`，其中 `econ_income_mean` 为城市所属省的平均收入。有效样本 186 城、25 省，斜率 -0.00026107，R²=0.0047；省均距离回归样本 25 省，斜率 -0.00053113，R²=0.0570。方向与“收入较高、距离较短”一致，但解释力有限，不构成因果证据。
+- 空间统计另用 296 个 `nearest_hospital_min` 有效城市构造 KNN-4 权重：全局 Moran's I=0.00233，双侧随机化 `p_rand`=0.7210；LISA 未校正 p<0.05 有 35 城，BH-FDR 校正后为 0 城。没有稳健的全局或局部聚集证据，完整口径见 [Q2 空间分析报告](analysis_q2_spatial.md)。
+- 可视化可用城市经纬度展示可达性时间；缺失值保留为缺测。LISA 象限仅作探索层展示，并须标出 FDR 显著性，不将未校正候选称为已确认热点。
 
 ### 2.3 老龄化压力（Q2/Q3 交叠）
 
@@ -172,9 +174,9 @@ m = sm.OLS(y, sm.add_constant(X)).fit(cov_type="cluster", cov_kwds={"groups": d[
 ### 6.2 空间分析类
 
 **Moran's I (全局) + LISA (局部) @ esda/libpysal** — Q1/Q2 空间组织
-- 探索结果: 城市 296 个可达性 (KNN-4): nearest_hospital_min Moran I=0.001, p=0.36 (无显著空间自相关——市域可达性近独立)
+- Q2 实测结果：296 城 KNN-4 下 `nearest_hospital_min` Moran's I=0.00233，双侧随机化 `p_rand`=0.7210；局部 LISA 有 35 城未校正 p<0.05，但 BH-FDR 后无显著城市。p 值定义、空间权重和局限见 [Q2 空间分析报告](analysis_q2_spatial.md)。
 - 但 **PM2.5 的 31 省 strongly clustered (2024)**: LISA 显著聚集: 天津/河北/北京 HH（京津冀高-高），内蒙古/山西 LH (低-高边界)； 新疆 HL。空间插值或 cluster mapping 都是可视化高价值项
-- 建议: `esda.Moran_Local` 生成 LISA cluster map，与省界 choropleth 叠作双面板图
+- 可视化建议：Q2 可画城市 `nearest_hospital_min` 点图；LISA 象限作为探索信息并同时标注 FDR 结果，不将未校正类别解释为显著聚集。
 
 **省际空间 Durbin / Spatial Lag (SDM/SAR)** — Q3 更深指标
 - 需要 libpysal权和 queen contiguity (由 geo_boundary polygon 直接导出), spreg 库 (额外安装)

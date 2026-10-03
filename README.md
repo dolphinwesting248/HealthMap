@@ -48,6 +48,32 @@
 - 分析路线与方法见 [docs/analysis.md](docs/analysis.md)，先读这个
 - **每次工作开新分支**，不在 `main` 上直接改，完成后提 PR
 - 代码与文档同步提交，不要留"下次再补文档"
+- AI 使用记录按协作要求维护在 [AI_USAGE.md](AI_USAGE.md)
+
+## Q2 分析与复现
+
+| 分析 | 说明文档 | 脚本 | 结果 |
+|------|----------|------|------|
+| 医疗资源、经济与城市可达性 | [Q2 主分析](docs/analysis_q2_focused.md) | [`q2_analysis.py`](analysis/q2_healthcare_access/q2_analysis.py) | `analysis/q2_healthcare_access/q2_analysis_results.csv` |
+| 城市可达性 Moran's I / LISA | [Q2 空间分析](docs/analysis_q2_spatial.md) | [`q2_spatial_autocorrelation.py`](analysis/q2_healthcare_access/q2_spatial_autocorrelation.py) | [总体结果](analysis/q2_healthcare_access/q2_accessibility_moran_results.csv)、[城市结果](analysis/q2_healthcare_access/q2_accessibility_moran_city_results.csv) |
+
+在项目根目录安装 `requirements.txt` 后运行：
+
+```bash
+python analysis/q2_healthcare_access/q2_analysis.py
+python analysis/q2_healthcare_access/q2_spatial_autocorrelation.py
+```
+
+当前脚本读取 `data/integrated/integrated/` 下的 Q1/Q2 融合表；空间分析还读取 `data/cleaned/cleaned/geo_boundary.geojson`。城市可达性是单点快照，空间分析仅使用有有效 `nearest_hospital_min` 且可匹配城市边界的城市；完整筛选口径与局限见对应报告。本项目这两项 Q2 分析只输出表格，不生成图表。
+
+### 面向可视化协作成员
+
+以下是可供后续协作的可视化需求建议，目前不包含已生成图表：
+
+1. **城市最近医院可达性地图**：使用 [逐城空间结果](analysis/q2_healthcare_access/q2_accessibility_moran_city_results.csv) 中的 `longitude`、`latitude`、`nearest_hospital_min` 着色；363 城中仅 296 城有有效分钟数，其余缺失应显示为缺测，不得按 0 分钟或不可达值插补。
+2. **KNN-4/LISA 探索图层**：可选展示 `lisa_quadrant` 或 `knn4_spatial_lag_min`，用于探索邻接结构；同时保留 `lisa_significant_fdr_05` 标记。当前 FDR 校正后显著城市数为 0，因此不能把未校正象限或候选点标成已确认热点。
+
+图例与标题应注明可达性是单点快照、时间单位为分钟、空间邻接为 KNN-4；统计定义和局限见 [Q2 空间分析报告](docs/analysis_q2_spatial.md)。
 
 ---
 
