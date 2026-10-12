@@ -260,6 +260,4 @@ visualization/q3_equity/          图表（10 张）
 | `q3_3_regression.csv` | M1–M3 系数 | 5.4 |
 | `q3_3_marginal_effects.csv` | M3 边际效应 | 5.4 |
 
-对应图表：`q3_1_equity_trends_4panel.png`、`q3_1_theil_decomposition.png`、`q3_1_three_axis.png`、`q3_2_resource_gini_trend.png`、`q3_2_resource_lorenz.png`、`q3_2_resource_province_rank.png`、`q3_2_resource_vs_income.png`、`q3_2_elderly_beds_pressure.png`、`q3_2_income_vs_env_convergence.png`、`q3_3_regression_coefficients.png`。
-
-旧版（`q3_equity.zip`）产出可全部删除：旧回归只有 54 个观测且设计矩阵奇异（条件数 1e18），不应引用；旧图表缺泰尔分解与医疗资源图，已被新图取代；旧 `outputs/` 中的检查类文件已并入 `q3_report.md` 和 `q3_3_diagnostics.csv`。
+对应图表：`q3_1_equity_trends_4panel.png`、`q3_1_theil_decomposition.png`、`q3_1_three_axis.png`、`q3_2_resource_gini_trend.png`、`q3_2_resource_lorenz.png`、`q3_2_resource_province_rank.png`、`q3_2_resource_vs_income.png`、`q3_2_elderly_beds_pressure.png`、`q3_2_income_vs_env_convergence.png`、`q3_3_regression_coefficients.png`
