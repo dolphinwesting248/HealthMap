@@ -1,0 +1,2 @@
+﻿variable,n_cities,file,n_with_coords,moran_I,moran_expected_perm,moran_p_perm,gini
+hospitals_window,363,D:\信管\DASHUJU\HealthMap-main\analysis\data\integrated\q2_healthcare_access\q2_healthcare_accessibility_city.csv,363,0.3458838831943305,-0.0010031275825792747,0.001,0.6790586491011494
