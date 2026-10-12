@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-HealthMap · Q3 公平性分析（一键运行版）
+HealthMap · Q3 公平性分析
 
 覆盖 docs/analysis.md 中 Q3 的全部要求：
   3.1 年度公平性趋势      -> 4 子图趋势 / 泰尔分解堆叠柱 / 三轴图 / Kendall 趋势检验
@@ -11,15 +11,15 @@ HealthMap · Q3 公平性分析（一键运行版）
   3.3 面板回归            -> 急诊病死率 ~ 收入 + 可达性P90 + PM2.5 + 床位 + 卫生就业 (+FE)
                             含 P90 vs mean 对比、三者交互与边际效应
 
-依赖: numpy, pandas, matplotlib, scipy（不需要 statsmodels；OLS 与聚类稳健标准误为手写实现）
+依赖: numpy, pandas, matplotlib, scipy
 
-用法（在项目任意位置）:
+用法:
     python analysis/q3_equity/q3_equity.py
     python analysis/q3_equity/q3_equity.py --root D:\\信管\\DASHUJU\\HealthMap-main
     python analysis/q3_equity/q3_equity.py --no-city        # 跳过城市级可选模块
 
 输出:
-    analysis/q3_equity/outputs/   表格(csv) + q3_report.md（自动生成、含真实数值）
+    analysis/q3_equity/outputs/   表格(csv) + q3_report.md
     visualization/q3_equity/      全部图表(png)
 """
 from __future__ import annotations
@@ -898,7 +898,7 @@ def fnum(x, d=3):
 
 
 def write_report(outdir, m, p, C, trend, lor_rows, sc_rows, conv, city, y_col, reg_tabs, metas, mes, diag):
-    L = ["# Q3 公平性分析报告（脚本自动生成，数值均来自本次运行）", "",
+    L = ["# Q3 公平性分析报告", "",
          "## 0. 数据检查", *LOG, ""]
     if FAILED:
         L += ["**本次运行未成功的部分：**", *[f"- {f}" for f in FAILED], ""]
