@@ -204,3 +204,41 @@ per10k_beds_calc ~ log(econ_income_total) + econ_income_urban/rural 差 (城乡�
 | Q1 分析 | 协助完成环境—健康变量筛选、逐步回归、交互项、空间自相关、8 张图表设计及结果核验，并将运行结果整理为可复现专题报告 |
 | Q2 分析 | 整理可复现的面板/横截面结果及 KNN-4 Moran/LISA 结果；通过重跑与逐项比对检查样本口径和文档数值 |
 | 文档协作 | 将 Q2 方法、限制、复现路径与后续可视化需求分别放入 README、AI_USAGE 和专题报告；不把未校正 LISA 候选点写成显著热点。 |
+
+---
+
+## 七、可视化与汇报产出（2026-10-27 至 2026-10-28）
+
+### 7.1 任务与产出
+
+| 产出 | 位置 | 说明 |
+|------|------|------|
+| 10 张数据可视化图表 | `imgs/` | 8 数据源体积、数据流水线、PM2.5 年均值、床位趋势、就医可达性、Moran's I/LISA、公平性趋势、地带基尼、KMeans 省分层、PIP 校验 |
+| 图表生成脚本 | `visualization/make_charts.py` | 一键重出全部图表（依赖 matplotlib/pandas/numpy） |
+| 可视化说明文档 | `docs/visualization.md` | 逐图记录：回答的问题 / 数据口径 / 文件路径 / 重新生成方式 |
+| 汇报 PPT（16 页） | `docs/presentation/HealthMap项目汇报.pptx` | 简体中文，每页含演讲者备注 |
+| 逐页讲稿 | `docs/presentation/HealthMap汇报讲稿.docx` | 含每页时间建议（全程 15–18 分钟）与 5 个预设 Q&A |
+| PPT/讲稿生成脚本 | `docs/presentation/build_ppt.py`、`make_speech.py` | 可一键重生成 |
+
+### 7.2 采纳情况与人工核验
+
+- 图表数字逐条对照 `docs/analysis.md`、`docs/analysis_q2_focused.md`、`docs/analysis_q2_spatial.md`、`data_sources.md` 与 `docs/spatial_association_validation.md`，未自行编造；
+- 在仓库结构下重跑 `python visualization/make_charts.py`，确认 10 张图正确写入 `imgs/` 且不覆盖已有 `data_lineage.*`；
+- 保留仓库原有严谨性表述：「关联非因果」「单一快照」「操作性口径（90.63%）」「BH-FDR 校正后无显著」等均写入图注/标题；
+- 用几何审计脚本检查 PPT 每页文字框/图片重叠并修正后重生成。
+
+### 7.3 AI 出错被纠正的记录
+
+| 问题 | 原因 | 纠正方式 |
+|------|------|---------|
+| 图表首渲为繁体 | 误用繁体字型（STHeiti Medium.ttc） | 改用简体字型（PingFang SC）重渲，全部图表交付为简体中文 |
+| accessibility 图标注重叠 | 分位数/中位数/最大值标注重叠难以辨认 | 重排版面错开标注高度，最大值标注外移加箭头 |
+| pip_validation 图口径误读 | 把「两法一致率」（S2 POI 84.75%、ERA5 格点 33.08%）误画成「近似法 vs 严格 PIP 在同一数据上的对比」 | 对照 `docs/spatial_association_validation.md` 重画：按点集呈现两法一致率（并补充 363 城中心点 79.06%），副标题注明最终 100% 吻合的构成（PIP 命中 9,886 + 城市名回退 7） |
+| pipeline 图箭头混乱 | 初版箭头交叠、层级不清 | 改为「8 源 → 清洗/融合/质控 → Q1/Q2/Q3」单向汇流结构 |
+| PPT 排版冲突 | 图片底部溢出画布、文字框压图 | 几何审计发现 3 处冲突：下移图片、收缩要点区、上移文档列表 |
+
+### 7.4 结论
+
+- 可视化产出全部基于仓库已有分析结论，未新增因果论断，样本口径与局限随图标注；
+- `pip_validation` 的口径修正落实了协作指南「发现文档与数据不符时，先确认哪个是对的」的要求；
+- 所有产出与文档（`docs/visualization.md`、本文件）在同一 PR/commit 中提交，不留「下次再补文档」。
